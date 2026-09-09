@@ -4,15 +4,15 @@ __pycache__/
 *$py.class
 *.so
 *.egg-info/
-dist/
-build/
 *.egg
 .eggs/
+*.whl
 
 # Virtual Environment
 venv/
 .venv/
 env/
+ENV/
 
 # IDE
 .vscode/
@@ -20,21 +20,46 @@ env/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # PyInstaller
 *.spec
 !darkcall.spec
+build/
+dist/
 
 # Logs
 *.log
+logs/
 
 # Environment
 .env
 .env.local
+.env.production
 
 # Docker
 docker-compose.override.yml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
