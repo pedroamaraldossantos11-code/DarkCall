@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  darkcall:
+    build: .
+    container_name: darkcall
+    ports:
+      - "8765:8765"
+    restart: unless-stopped
+    environment:
+      - PORT=8765
+      - HOST=0.0.0.0
+      - LOG_LEVEL=info
+    volumes:
+      - ./static:/app/static
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

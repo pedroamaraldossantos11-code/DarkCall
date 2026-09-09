@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#07111f">
+    <meta name="description" content="DarkCall — Conecte-se. Converse. Compartilhe.">
+    <title>DarkCall</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- TOASTS -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ================= HOME ================= -->
+    <main id="homeScreen" class="screen home-screen">
+        <div class="home-glow glow-one"></div>
+        <div class="home-glow glow-two"></div>
+
+        <header class="home-header">
+            <div class="brand">
+                <div class="brand-icon">D</div>
+                <span>DARKCALL</span>
+            </div>
+
+            <button id="homeSettingsBtn" class="icon-button" title="Configuracoes">
+                &#9881;
+            </button>
+        </header>
+
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="status-dot"></span>
+                Comunicacao simples e rapida
+            </div>
+
+            <h1>DARK<span>CALL</span></h1>
+
+            <p>Conecte-se. Converse. Compartilhe.</p>
+
+            <div class="connection-status" id="connectionStatus">
+                <span class="conn-dot"></span>
+                <span class="conn-text">Conectando...</span>
+            </div>
+
+            <div class="home-actions">
+                <button id="createRoomBtn" class="primary-action" disabled>
+                    <span class="action-icon">+</span>
+                    <span>
+                        <strong>Criar sala</strong>
+                        <small>Crie uma sala instantaneamente</small>
+                    </span>
+                </button>
+
+                <button id="joinRoomBtn" class="secondary-action" disabled>
+                    <span class="action-icon">#</span>
+                    <span>
+                        <strong>Entrar em sala</strong>
+                        <small>Use um codigo de 4 digitos</small>
+                    </span>
+                </button>
+            </div>
+
+            <div class="recent-section">
+                <div class="section-title">
+                    <span>Salas recentes</span>
+                    <button id="clearRecentBtn">Limpar</button>
+                </div>
+
+                <div id="recentRooms" class="recent-rooms"></div>
+            </div>
+        </section>
+
+        <footer class="home-footer">
+            <span>DarkCall</span>
+            <span>&bull;</span>
+            <span id="footerVersion">v2.0</span>
+        </footer>
+    </main>
+
+    <!-- ================= ROOM MODAL ================= -->
+    <div id="roomModal" class="modal-overlay hidden">
+        <div class="modal">
+            <button class="modal-close" data-close-modal="roomModal">&times;</button>
+
+            <div class="modal-icon">&#10022;</div>
+
+            <h2>Sala criada!</h2>
+            <p>Compartilhe o link ou o codigo com seus amigos.</p>
+
+            <div class="room-code-display">
+                <span id="generatedCode">0000</span>
+                <button id="copyCodeBtn" title="Copiar codigo">&#8984;</button>
+            </div>
+
+            <div class="share-url-box">
+                <input id="shareUrl" class="share-url-input" type="text" readonly>
+                <button id="copyUrlBtn" class="share-url-copy" title="Copiar link">&#128203;</button>
+            </div>
+
+            <div id="copyCodeText" class="copy-feedback"></div>
+
+            <button id="enterCreatedRoomBtn" class="modal-primary">
+                Entrar na sala
+            </button>
+
+            <button class="modal-secondary" data-close-modal="roomModal">
+                Voltar
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= JOIN MODAL ================= -->
+    <div id="joinModal" class="modal-overlay hidden">
+        <div class="modal">
+            <button class="modal-close" data-close-modal="joinModal">&times;</button>
+
+            <div class="modal-icon">&#8599;</div>
+
+            <h2>Entrar em sala</h2>
+            <p>Digite o codigo de 4 numeros.</p>
+
+            <div class="code-inputs">
+                <input maxlength="1" inputmode="numeric" class="code-input">
+                <input maxlength="1" inputmode="numeric" class="code-input">
+                <input maxlength="1" inputmode="numeric" class="code-input">
+                <input maxlength="1" inputmode="numeric" class="code-input">
+            </div>
+
+            <div id="joinError" class="form-error"></div>
+
+            <button id="confirmJoinBtn" class="modal-primary">
+                Entrar
+            </button>
+
+            <button class="modal-secondary" data-close-modal="joinModal">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= SETTINGS MODAL ================= -->
+    <div id="settingsModal" class="modal-overlay hidden">
+        <div class="modal settings-modal">
+            <button class="modal-close" data-close-modal="settingsModal">&times;</button>
+
+            <div class="modal-icon">&#9881;</div>
+
+            <h2>Configuracoes</h2>
+            <p>Personalize sua experiencia no DarkCall.</p>
+
+            <div class="avatar-upload-area">
+                <div id="settingsAvatarPreview" class="avatar-preview">
+                    <span id="settingsAvatarInitials">P</span>
+                    <img id="settingsAvatarImg" class="avatar-preview-img hidden" alt="">
+                </div>
+                <label for="avatarFileInput" class="avatar-upload-btn">
+                    Mudar foto
+                </label>
+                <input id="avatarFileInput" type="file" accept="image/*" class="hidden">
+                <button id="removeAvatarBtn" class="avatar-remove-btn hidden">Remover foto</button>
+            </div>
+
+            <label class="setting-label" for="usernameInput">
+                Seu nome
+            </label>
+
+            <input
+                id="usernameInput"
+                class="text-input"
+                type="text"
+                maxlength="24"
+                placeholder="Digite seu nome"
+            >
+
+            <button id="saveSettingsBtn" class="modal-primary">
+                Salvar alteracoes
+            </button>
+
+            <button class="modal-secondary" data-close-modal="settingsModal">
+                Fechar
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= CALL ================= -->
+    <main id="callScreen" class="screen call-screen hidden">
+
+        <!-- TOPBAR -->
+        <header class="call-topbar">
+            <div class="call-brand">
+                <div class="brand-icon small">D</div>
+                <strong>DARKCALL</strong>
+            </div>
+
+            <div class="room-info">
+                <span class="room-hash">#</span>
+                <span id="activeRoomCode">0000</span>
+            </div>
+
+            <div class="call-top-actions">
+                <div class="participant-count">
+                    <span>&#128101;</span>
+                    <span id="participantCount">1</span>
+                </div>
+
+                <button id="callSettingsBtn" class="top-icon-button" title="Configuracoes">
+                    &#9881;
+                </button>
+
+                <button id="mobileMenuBtn" class="top-icon-button mobile-only" title="Menu">
+                    &#9776;
+                </button>
+            </div>
+        </header>
+
+        <div class="call-layout">
+
+            <!-- DEVICE PROMPT (on join) -->
+            <div id="devicePrompt" class="device-prompt hidden">
+                <div class="device-prompt-card">
+                    <div class="device-prompt-icon">&#128249;</div>
+                    <h2>Ativar camera e microfone?</h2>
+                    <p>Selecione como deseja entrar na chamada.</p>
+
+                    <button id="devBothBtn" class="modal-primary">
+                        &#127908; &nbsp;Camera e microfone
+                    </button>
+
+                    <button id="devMicBtn" class="dev-secondary">
+                        &#127908; &nbsp;Somente microfone
+                    </button>
+
+                    <button id="devNoneBtn" class="dev-ghost">
+                        Entrar so para assistir
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIDEBAR -->
+            <aside id="sidebar" class="sidebar">
+
+                <div class="sidebar-actions">
+                    <button id="sidebarHomeBtn" class="sidebar-button">
+                        <span>&#8962;</span>
+                        <span>Inicio</span>
+                    </button>
+
+                    <button id="sidebarCreateBtn" class="sidebar-button">
+                        <span>+</span>
+                        <span>Criar sala</span>
+                    </button>
+
+                    <button id="sidebarJoinBtn" class="sidebar-button">
+                        <span>&#8599;</span>
+                        <span>Entrar</span>
+                    </button>
+                </div>
+
+                <div class="sidebar-divider"></div>
+
+                <div class="recent-sidebar-title">
+                    RECENTES
+                </div>
+
+                <div id="sidebarRecentRooms" class="sidebar-recent"></div>
+
+                <div class="sidebar-user">
+                    <div id="sidebarAvatar" class="avatar user-avatar">P</div>
+
+                    <div class="sidebar-user-info">
+                        <strong id="sidebarUsername">Pedro</strong>
+                        <small id="sidebarUserStatus">Na sala</small>
+                    </div>
+
+                    <button id="sidebarMicBtn" class="user-control" title="Microfone">
+                        &#127908;
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN CALL -->
+            <section class="call-main">
+
+                <div id="videoGrid" class="video-grid">
+
+                    <!-- Local user -->
+                    <article class="video-card local-card" id="localCard">
+                        <video
+                            id="localVideo"
+                            autoplay
+                            playsinline
+                            muted
+                        ></video>
+
+                        <div id="localAvatar" class="video-avatar">
+                            <span id="localAvatarText">P</span>
+                            <img id="localAvatarImg" class="video-avatar-img hidden" alt="">
+                        </div>
+
+                        <div class="video-gradient"></div>
+
+                        <div class="video-user-info">
+                            <span id="localName">Pedro</span>
+                            <span id="localMicStatus">&#127908;</span>
+                        </div>
+
+                        <div class="video-status">
+                            Voce
+                        </div>
+                    </article>
+
+                    <!-- Empty slots for future participants -->
+                    <article class="video-card empty-slot" id="emptySlot1">
+                        <div class="empty-slot-content">
+                            <div class="empty-slot-icon">+</div>
+                            <div class="empty-slot-text">Aguardando participante...</div>
+                        </div>
+                        <div class="video-gradient"></div>
+                    </article>
+
+                    <article class="video-card empty-slot" id="emptySlot2">
+                        <div class="empty-slot-content">
+                            <div class="empty-slot-icon">+</div>
+                            <div class="empty-slot-text">Aguardando participante...</div>
+                        </div>
+                        <div class="video-gradient"></div>
+                    </article>
+
+                    <article class="video-card empty-slot" id="emptySlot3">
+                        <div class="empty-slot-content">
+                            <div class="empty-slot-icon">+</div>
+                            <div class="empty-slot-text">Aguardando participante...</div>
+                        </div>
+                        <div class="video-gradient"></div>
+                    </article>
+                </div>
+
+                <!-- SCREEN SHARE -->
+                <div id="screenShareContainer" class="screen-share-container hidden">
+                    <div class="screen-share-header">
+                        <span>&#128421; Tela compartilhada</span>
+                        <button id="stopScreenShareTop">Parar</button>
+                    </div>
+
+                    <video
+                        id="screenVideo"
+                        autoplay
+                        playsinline
+                    ></video>
+                </div>
+
+                <!-- REMOTE SCREEN SHARE (shows other user's screen) -->
+                <div id="remoteScreenContainer" class="remote-screen-container hidden">
+                    <div class="screen-share-header">
+                        <span>&#128421; Tela de <span id="remoteScreenName">Participante</span></span>
+                    </div>
+
+                    <video
+                        id="remoteScreenVideo"
+                        autoplay
+                        playsinline
+                    ></video>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="call-controls">
+
+                    <button id="micBtn" class="call-control" title="Microfone">
+                        <span class="control-icon">&#127908;</span>
+                        <span class="control-label">Microfone</span>
+                    </button>
+
+                    <button id="cameraBtn" class="call-control" title="Camera">
+                        <span class="control-icon">&#128249;</span>
+                        <span class="control-label">Camera</span>
+                    </button>
+
+                    <button id="screenShareBtn" class="call-control" title="Compartilhar tela">
+                        <span class="control-icon">&#128421;</span>
+                        <span class="control-label">Tela</span>
+                    </button>
+
+                    <button id="chatBtn" class="call-control" title="Chat">
+                        <span class="control-icon">&#128172;</span>
+                        <span class="control-label">Chat</span>
+                    </button>
+
+                    <button id="leaveBtn" class="call-control leave-control" title="Sair">
+                        <span class="control-icon">&#128222;</span>
+                        <span class="control-label">Sair</span>
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- CHAT -->
+            <aside id="chatPanel" class="chat-panel hidden">
+
+                <div class="chat-header">
+                    <div>
+                        <strong>CHAT</strong>
+                        <small>Sala #<span id="chatRoomCode">0000</span></small>
+                    </div>
+
+                    <button id="closeChatBtn">&times;</button>
+                </div>
+
+                <div id="chatMessages" class="chat-messages"></div>
+
+                <form id="chatForm" class="chat-input-area">
+                    <input
+                        id="chatInput"
+                        type="text"
+                        maxlength="500"
+                        autocomplete="off"
+                        placeholder="Digite uma mensagem..."
+                    >
+
+                    <button type="submit">&#10148;</button>
+                </form>
+
+            </aside>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
