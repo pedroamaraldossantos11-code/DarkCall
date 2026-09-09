@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # 🔥 DarkCall
 
@@ -21,14 +21,12 @@
 ## 📋 Table of Contents
 
 - [Features](#-features)
-- [Demo](#-demo)
 - [Quick Start](#-quick-start)
 - [Installation](#-installation)
 - [Docker](#-docker)
 - [Production Deployment](#-production-deployment)
 - [Configuration](#-configuration)
 - [Architecture](#-architecture)
-- [API Reference](#-api-reference)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -51,41 +49,26 @@
 
 ---
 
-## 🎬 Demo
-
-> **Live Demo:** [darkcall.example.com](https://darkcall.example.com)
-
-![DarkCall Screenshot](https://via.placeholder.com/800x450/050b14/247cff?text=DarkCall+Screenshot)
-
----
-
 ## 🚀 Quick Start
-
-### Option 1: Run Directly
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/DarkCall.git
+git clone https://github.com/pedroamaraldossantos11-code/DarkCall.git
 cd DarkCall
 
 # Run the setup script
-chmod +x run.sh
-./run.sh
+chmod +x scripts/run.sh
+./scripts/run.sh
 ```
 
 Open http://localhost:8765 in your browser.
 
-### Option 2: Manual Setup
+### Manual Setup
 
 ```bash
-# Create virtual environment
 python3 -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Start the server
 python server.py
 ```
 
@@ -93,113 +76,66 @@ python server.py
 
 ## 📦 Installation
 
+See [docs/INSTALL.md](docs/INSTALL.md) for detailed instructions.
+
 ### Prerequisites
 
 - Python 3.10 or higher
-- pip (Python package manager)
+- pip
 - Git
 
-### Step-by-Step
-
-#### 1. Clone the Repository
+### Quick Install
 
 ```bash
-git clone https://github.com/yourusername/DarkCall.git
+git clone https://github.com/pedroamaraldossantos11-code/DarkCall.git
 cd DarkCall
-```
-
-#### 2. Create Virtual Environment
-
-```bash
 python3 -m venv venv
-
-# Linux/macOS
 source venv/bin/activate
-
-# Windows
-venv\Scripts\activate
-```
-
-#### 3. Install Dependencies
-
-```bash
 pip install -r requirements.txt
-```
-
-#### 4. Start the Server
-
-```bash
 python server.py
 ```
-
-#### 5. Open Your Browser
-
-Navigate to: **http://localhost:8765**
 
 ---
 
 ## 🐳 Docker
 
-### Using Docker Compose (Recommended)
-
 ```bash
-# Build and run
+# Using Docker Compose
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
-```
-
-### Using Docker Only
-
-```bash
-# Build the image
+# Or build manually
 docker build -t darkcall .
-
-# Run the container
-docker run -d -p 8765:8765 --name darkcall darkcall
+docker run -d -p 8765:8765 darkcall
 ```
 
 ---
 
 ## 🌐 Production Deployment
 
-### Using Nginx + Let's Encrypt
-
-#### 1. Server Setup (Ubuntu 22.04)
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) or run the setup script:
 
 ```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install required packages
-sudo apt install -y python3 python3-pip python3-venv nginx certbot python3-certbot-nginx git
+sudo ./scripts/setup.sh
 ```
 
-#### 2. Deploy the Application
+### Quick Deploy (Ubuntu 22.04)
 
 ```bash
-# Clone to /opt
-cd /opt
-sudo git clone https://github.com/yourusername/DarkCall.git
-cd DarkCall
+# Install dependencies
+sudo apt update
+sudo apt install -y python3 python3-pip python3-venv nginx certbot python3-certbot-nginx git
 
-# Setup
+# Clone and setup
+cd /opt
+sudo git clone https://github.com/pedroamaraldossantos11-code/DarkCall.git
+cd DarkCall
 sudo python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
 
-#### 3. Create Systemd Service
-
-```bash
+# Create systemd service
 sudo nano /etc/systemd/system/darkcall.service
 ```
-
-Add this content:
 
 ```ini
 [Unit]
@@ -212,39 +148,27 @@ User=www-data
 WorkingDirectory=/opt/DarkCall
 ExecStart=/opt/DarkCall/venv/bin/python server.py
 Restart=always
-RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Enable and start:
-
 ```bash
-sudo systemctl daemon-reload
 sudo systemctl enable darkcall
 sudo systemctl start darkcall
 ```
 
-#### 4. Configure Nginx
-
-```bash
-sudo nano /etc/nginx/sites-available/darkcall
-```
-
-Add this content:
+### Nginx Configuration
 
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name yourdomain.com;
 
     location / {
         proxy_pass http://127.0.0.1:8765;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     location /ws {
@@ -252,52 +176,29 @@ server {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_read_timeout 86400;
     }
 }
 ```
 
-Enable the site:
+### Enable HTTPS
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/darkcall /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-#### 5. Enable HTTPS with Certbot
-
-```bash
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-```
-
-#### 6. Setup Auto-Renewal
-
-```bash
-sudo systemctl status certbot.timer
-sudo certbot renew --dry-run
+sudo certbot --nginx -d yourdomain.com
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### Environment Variables
-
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `8765` | Server port |
 | `HOST` | `0.0.0.0` | Server host |
-| `LOG_LEVEL` | `info` | Logging level |
 
-### Custom Configuration
-
-Edit `server.py` to change:
+Edit `server.py` to change the port:
 
 ```python
-PORT = 8765  # Change to your desired port
+PORT = 8765
 ```
 
 ---
@@ -310,103 +211,53 @@ PORT = 8765  # Change to your desired port
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │   Browser 1  │  │   Browser 2  │  │   Browser 3  │      │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-│         │                 │                 │               │
 │         └────────┬────────┴────────┬────────┘               │
-│                  │                 │                        │
 └──────────────────┼─────────────────┼────────────────────────┘
                    │                 │
             ┌──────▼──────┐   ┌──────▼──────┐
             │  WebSocket  │   │    WebRTC   │
             │ (Signaling) │   │ (P2P Media) │
             └──────┬──────┘   └──────┬──────┘
-                   │                 │
-            ┌──────▼──────────────────▼──────┐
-            │         DarkCall Server         │
-            │   - Room Management             │
-            │   - WebSocket Signaling         │
-            │   - Static File Serving         │
-            └────────────────────────────────┘
+                   └────────┬────────┘
+            ┌───────────────▼───────────────┐
+            │       DarkCall Server         │
+            │  - Room Management            │
+            │  - WebSocket Signaling        │
+            │  - Static File Serving        │
+            └───────────────────────────────┘
 ```
 
-### How It Works
-
-1. **WebSocket** handles signaling (join/leave rooms, chat messages)
-2. **WebRTC** handles peer-to-peer audio/video (no server load)
-3. **Server** only relays signals, never sees your video/audio
-4. **STUN servers** help peers find each other through NATs
-
----
-
-## 📡 API Reference
-
-### WebSocket Messages
-
-#### Join Room
-```json
-{
-    "type": "join_room",
-    "room": "1234",
-    "name": "John",
-    "avatar": "data:image/png;base64,..."
-}
-```
-
-#### Chat Message
-```json
-{
-    "type": "chat_message",
-    "text": "Hello everyone!"
-}
-```
-
-#### WebRTC Signaling
-```json
-{
-    "type": "offer",
-    "target": "peer_uid",
-    "sdp": { ... }
-}
-```
+**How it works:**
+1. **WebSocket** handles signaling (join/leave rooms, chat)
+2. **WebRTC** handles peer-to-peer audio/video
+3. **Server** only relays signals, never sees your media
+4. **STUN servers** help peers connect through NATs
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-### Quick Start for Contributors
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```bash
-# Fork the repository
-# Clone your fork
-git clone https://github.com/yourusername/DarkCall.git
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/DarkCall.git
 
-# Create a feature branch
+# Create feature branch
 git checkout -b feature/amazing-feature
 
-# Make your changes
-# Commit
+# Commit and push
 git commit -m "Add amazing feature"
-
-# Push
 git push origin feature/amazing-feature
 
-# Open a Pull Request
+# Open Pull Request
 ```
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
-- [WebRTC](https://webrtc.org/) - Real-time communication
-- [Uvicorn](https://www.uvicorn.org/) - Lightning-fast ASGI server
+This project is licensed under the MIT License - see [LICENSE](LICENSE).
 
 ---
 
@@ -414,7 +265,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by DarkCall Team**
 
-[Report Bug](https://github.com/yourusername/DarkCall/issues) · [Request Feature](https://github.com/yourusername/DarkCall/issues)
+[Report Bug](https://github.com/pedroamaraldossantos11-code/DarkCall/issues) · [Request Feature](https://github.com/pedroamaraldossantos11-code/DarkCall/issues)
 
 </div>
-]]>
